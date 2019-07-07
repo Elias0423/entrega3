@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const hbs = require('hbs');
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const funciones = require('../files/funciones');
 const dirViews = path.join(__dirname, '../../templates/views/');
 const directoriopartials = path.join(__dirname, '../../templates/partials');
@@ -28,7 +29,7 @@ app.post('/registrarusuario', (req, res) => {
   let usuario = new Usuario({
     cedula: req.body.cedula,
     nombre: req.body.nombre,
-    password: req.body.password,
+    password: bcrypt.hashSync(req.body.password, 10),
     email: req.body.email,
     telefono: req.body.telefono,
     perfil: req.body.perfil
@@ -43,6 +44,13 @@ app.post('/registrarusuario', (req, res) => {
     res.render('index', {
       message: result
     })
+  })
+})
+
+app.post('/iniciarsesion', (req, res) => {
+  pass = bcrypt.compareSync(req.body.password, 10)
+  Usuario.findOne({cedula: req.body.cedula}).exec((err, result) => {
+    
   })
 })
 
