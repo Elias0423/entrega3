@@ -1,0 +1,21 @@
+{{>headerCoordinador}}
+<br>
+{{{verInscritos}}}
+<br>
+<form action="/cambiarestado" , method="post">
+  <div class="form-group">
+
+    <label>Curso a cambiar de estado</label>
+    <select class="form-control" name="curso" required>
+      {{{listarCursos}}}
+    </select>
+    <br>
+    <button type="submit" class="btn btn-primary">Cambiar estado curso</button>
+    <br>
+</form>
+<br>
+<div class="alert alert-info" role="alert">
+  {{message}}
+</div>
+<br>
+{{>footer}}

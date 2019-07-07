@@ -1,0 +1,45 @@
+{{>headerCoordinador}}
+
+<form action="/actualizarusuario" , method="post">
+  <div class="form-group">
+    <div class="row">
+      <div class="col">
+        <label>Documento de identidad</label>
+        <br>
+        <label>{{identificacion}}</label>
+        <input type="number" class="form-control" name="identificacion" placeholder="Documento"
+          value="{{identificacion}}" hidden>
+      </div>
+      <div class="col">
+        <label>Nombre Completo</label>
+        <input type="text" class="form-control" name="nombre" placeholder="Nombre del usuario" value="{{nombre}}"
+          required>
+      </div>
+      <div class="col">
+        <label>Correo</label>
+        <input type="email" class="form-control" name="correo" placeholder="Correo usuario" value="{{correo}}" required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Telefono</label>
+        <input type="tel" class="form-control" name="telefono" placeholder="Telefono usuario" value="{{telefono}}"
+          required>
+      </div>
+      <div class="col">
+        <label>Rol</label>
+        <select class="form-control" name="rol" required>
+          {{{listarRol rol}}}
+        </select>
+      </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Actualizar usuario</button>
+    <br>
+</form>
+<br>
+<div class="alert alert-info" role="alert">
+  {{message}}
+</div>
+<br>
+{{>footer}}

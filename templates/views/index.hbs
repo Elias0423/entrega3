@@ -1,0 +1,64 @@
+{{>header}}
+<h1>Por favor inicie sesión o registrese</h1>
+<br>
+<h3>Iniciar sesión</h3>
+
+<form action="/iniciarsesion" , method="post">
+  <div class="form-group">
+    <div class="row">
+      <div class="col">
+        <label>Documento de identidad</label>
+        <input type="number" class="form-control" name="identificacion" placeholder="Documento" required>
+      </div>
+      <div class="col">
+        <label>Contraseña</label>
+        <input type="password" class="form-control" name="pass" placeholder="Contraseña del usuario" required>
+      </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+    <br>
+</form>
+<br>
+
+<div class="alert alert-info" role="alert">
+  {{message}}
+</div>
+<br>
+
+<h3>Registrarse</h3>
+<p>Ingrese sus datos en el siguiente formulario</p>
+
+<form action="/registrarusuario" , method="post">
+  <div class="form-group">
+    <div class="row">
+      <div class="col">
+        <label>Documento de identidad</label>
+        <input type="number" class="form-control" name="identificacion" placeholder="Documento" required>
+      </div>
+      <div class="col">
+        <label>Nombre Completo</label>
+        <input type="text" class="form-control" name="nombre" placeholder="Nombre del usuario" required>
+      </div>
+      <div class="col">
+        <label>Correo</label>
+        <input type="email" class="form-control" name="correo" placeholder="Correo usuario" required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Telefono</label>
+        <input type="tel" class="form-control" name="telefono" placeholder="Telefono usuario" required>
+      </div>
+      <div class="col">
+        <label>Contraseña</label>
+        <input type="password" class="form-control" name="pass" placeholder="Contraseña del usuario" required>
+      </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Crear usuario</button>
+    <br>
+</form>
+
+<br>
+{{>footer}}

@@ -1,0 +1,17 @@
+{{>headerCoordinador}}
+<br>
+<form action="/actualizar" , method="post">
+  <div class="form-group">
+    <label>identificacion del usuario</label>
+    <input type="number" class="form-control" name="identificacion" placeholder="Documento" required>
+  </div>
+  <br>
+  <button type="submit" class="btn btn-primary">Actualizar Datos</button>
+  <br>
+</form>
+<br>
+<div class="alert alert-info" role="alert">
+  {{message}}
+</div>
+<br>
+{{>footer}}

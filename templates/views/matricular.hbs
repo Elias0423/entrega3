@@ -1,0 +1,23 @@
+{{>headerAspirante}}
+<br>
+<form action="/matricular" , method="post">
+  <div class="form-group">
+    <div class="row">
+      <div class="col">
+        <label>Curso</label>
+        <select class="form-control" name="curso" required>
+          {{{listarCursos}}}
+        </select>
+      </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Inscribir curso</button>
+    <br>
+</form>
+
+<br>
+<div class="alert alert-info" role="alert">
+  {{message}}
+</div>
+<br>
+{{>footer}}
