@@ -17,7 +17,7 @@ const curso = new Schema({
     },
 
     costo: {
-        type: Float32Array
+        type: Number
     },
 
     intensidad: {
@@ -38,6 +38,11 @@ const curso = new Schema({
             values: ['Disponible', 'Finalizado', 'Cerrado']
         }
     }
+},   
+{
+  collection: 'curso',
+  toJSON: { virtuals: true },
+  versionKey: false
 })
 
 module.exports = mongoose.model("curso", curso)

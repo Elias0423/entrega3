@@ -34,6 +34,11 @@ const usuario = new Schema ({
             values: ['Coordinador', 'Aspirante', 'Docente', 'Interesado']
         }
     }
+},   
+{
+  collection: 'usuario',
+  toJSON: { virtuals: true },
+  versionKey: false
 })
 
 module.exports = mongoose.model('usuario', usuario)

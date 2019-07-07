@@ -7,9 +7,9 @@ const funciones = require('../files/funciones');
 const dirViews = path.join(__dirname, '../../templates/views/');
 const directoriopartials = path.join(__dirname, '../../templates/partials');
 
-const Curso = mongoose.model('curso')
-const Usuario = mongoose.model('usuario')
-const Inscripcion = mongoose.model('inscripcion')
+const Curso = require('../models/curso')
+const Usuario = require('../models/usuario')
+const Inscripcion = require('../models/inscripcion')
 
 require('../helpers/helpers')
 
@@ -25,11 +25,33 @@ app.get('/', (req, res) => {
 });
 
 app.post('/registrarusuario', (req, res) => {
+  let usuario = new Usuario({
+    cedula: req.body.cedula,
+    nombre: req.body.nombre,
+    password: req.body.password,
+    email: req.body.email,
+    telefono: req.body.telefono,
+    perfil: req.body.perfil
+  })
+
+  usuario.save((err, result) => {
+    if(err){
+      res.render('index', {
+        message: err
+      })
+    }
+    res.render('index', {
+      message: result
+    })
+  })
+})
+
+/*app.post('/registrarusuario', (req, res) => {
   var response = funciones.registrarUsuario(req.body.identificacion, req.body.nombre, req.body.correo, req.body.telefono, 1, req.body.pass)
   return res.render('index', {
     message: response
   });
-});
+});*/
 
 app.post('/iniciarsesion', (req, res) => {
   var user = funciones.validarLogin(req.body.identificacion, req.body.pass);

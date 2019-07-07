@@ -13,6 +13,11 @@ const inscripcion = new Schema({
     idCurso: {
         type: Number
     }
+},   
+{
+  collection: 'inscripcion',
+  toJSON: { virtuals: true },
+  versionKey: false
 })
 
 module.exports = mongoose.model("inscripcion", inscripcion)
