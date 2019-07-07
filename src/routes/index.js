@@ -48,39 +48,38 @@ app.post('/registrarusuario', (req, res) => {
 })
 
 app.post('/iniciarsesion', (req, res) => {
-  pass = bcrypt.compareSync(req.body.password, 10)
-  Usuario.findOne({cedula: req.body.cedula}).exec((err, result) => {
+  console.log(req.body)
+  Usuario.findOne({cedula: req.body.cedula}, (err, user) => {
+    if(err){
+      res.render('index', {
+        message: err
+      })
+    }
+    if(!user){
+      res.render('index', {
+        message: 'Cédula o contraseña incorrecta'
+      })
+    }
+    if(!bcrypt.compareSync(req.body.password, user.password)){
+      res.render('index', {
+        message: 'Cédula o contraseña incorrecta'
+      })
+    }
     
+    req.session.nombre = user.nombre
+    req.session.cedula = user.cedula
+
+    if(user.perfil == 'Aspirante'){
+      res.render('vercursosactivos', {
+        nombre: 'Bienvenido ' + req.session.nombre
+      })
+    }else{
+      res.render('vercursos', {
+        nombre: 'Bienvenido ' + req.session.nombre
+      })
+    }
   })
 })
-
-/*app.post('/registrarusuario', (req, res) => {
-  var response = funciones.registrarUsuario(req.body.identificacion, req.body.nombre, req.body.correo, req.body.telefono, 1, req.body.pass)
-  return res.render('index', {
-    message: response
-  });
-});*/
-
-app.post('/iniciarsesion', (req, res) => {
-  var user = funciones.validarLogin(req.body.identificacion, req.body.pass);
-  if (user != false) {
-    req.session.identificacion = user.identificacion;
-    req.session.nombre = user.nombre + " ";
-    if (user.rol == 1) {
-      res.render('vercursosactivos', {
-        nombre: req.session.nombre
-      });
-    } else {
-      res.render('vercursos', {
-        nombre: req.session.nombre
-      });
-    }
-  } else {
-    res.render('index', {
-      message: "El usuario no existe actualmente"
-    })
-  }
-});
 
 //RUTAS ASPIRANTE --------------------------------------------------------------------------
 
