@@ -2,9 +2,14 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const hbs = require('hbs');
+const mongoose = require('mongoose')
 const funciones = require('../files/funciones');
 const dirViews = path.join(__dirname, '../../templates/views/');
 const directoriopartials = path.join(__dirname, '../../templates/partials');
+
+const Curso = mongoose.model('curso')
+const Usuario = mongoose.model('usuario')
+const Inscripcion = mongoose.model('inscripcion')
 
 require('../helpers/helpers')
 

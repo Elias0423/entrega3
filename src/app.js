@@ -1,9 +1,11 @@
+require('./config/config')
 const express = require('express');
 const app = express();
 var session = require('express-session');
 const path = require('path');
 const bodyParser = require('body-parser');
 var MemoryStore = require('memorystore')(session);
+const mongoose = require('mongoose')
 
 //Paths
 const dirNodeModules = path.join(__dirname, '../node_modules');
@@ -43,6 +45,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 //Routes
 app.use(require('./routes/index'));
 
-app.listen(3001, () => {
-  console.log("Server en puerto 3001")
+mongoose.connect('mongodb://localhost:27017/appcursos', {useNewUrlParser: true}, (err, result) => {
+	if(err) throw err
+	console.log("Conectado a la base de datos")
+})
+
+app.listen(process.env.PORT, () => {
+  console.log("Server en puerto " + process.env.PORT)
 })
