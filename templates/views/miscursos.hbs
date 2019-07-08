@@ -1,6 +1,6 @@
 {{>headerAspirante}}
 <br>
-{{{verMisCursos identificacion}}}
+{{{verMisCursos misCursos}}}
 <br>
 <form action="/cancelarinscripcion" , method="post">
   <div class="form-group">
@@ -8,7 +8,7 @@
       <div class="col">
         <label>Curso a cancelar inscripción</label>
         <select class="form-control" name="curso" required>
-          {{{listarMisCursos identificacion}}}
+          {{{listarCursos misCursos}}}
         </select>
       </div>
     </div>

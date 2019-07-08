@@ -2,11 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const inscripcion = new Schema({
-    idInscripcion: {
-        type: Number
-    },
-
-    idUsuario: {
+    cedula: {
         type: Number
     },
 

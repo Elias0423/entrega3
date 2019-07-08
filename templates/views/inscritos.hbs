@@ -1,13 +1,13 @@
 {{>headerCoordinador}}
 <br>
-{{{verInscritos}}}
+{{{verInscritos inscritos}}}
 <br>
 <form action="/cambiarestado" , method="post">
   <div class="form-group">
 
     <label>Curso a cambiar de estado</label>
     <select class="form-control" name="curso" required>
-      {{{listarCursos}}}
+      {{{listarCursos listadoCursos}}}
     </select>
     <br>
     <button type="submit" class="btn btn-primary">Cambiar estado curso</button>

@@ -16,11 +16,11 @@ const curso = new Schema({
         type: String
     },
 
-    costo: {
+    valor: {
         type: Number
     },
 
-    intensidad: {
+    horas: {
         type: String
     },
 
@@ -35,7 +35,7 @@ const curso = new Schema({
         type: String,
         default: 'Disponible',
         enum: {
-            values: ['Disponible', 'Finalizado', 'Cerrado']
+            values: ['Disponible', 'Cerrado']
         }
     }
 },   

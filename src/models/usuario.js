@@ -17,7 +17,7 @@ const usuario = new Schema ({
         required: true
     },
 
-    email : {
+    correo : {
         type: String,
         required: true
     },
@@ -31,7 +31,7 @@ const usuario = new Schema ({
         type: String,
         default: 'Aspirante',
         enum: {
-            values: ['Coordinador', 'Aspirante', 'Docente', 'Interesado']
+            values: ['Aspirante', 'Coordinador', 'Docente', 'Interesado']
         }
     }
 },   
