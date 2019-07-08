@@ -3,7 +3,8 @@ const Schema = mongoose.Schema
 
 const inscripcion = new Schema({
     idInscripcion: {
-        type: Number
+        type: Number,
+        index: true
     },
 
     idUsuario: {

@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const usuario = new Schema ({
     cedula : {
         type: Number,
-        required: true
+        required: true,
+        index: true
     },
 
     nombre : {
