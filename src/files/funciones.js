@@ -1,71 +1,33 @@
 const fs = require('fs');
+const Curso = require('../models/curso')
+const Usuario = require('../models/usuario')
+const Inscripcion = require('../models/inscripcion')
 listaUsuarios = [];
 listaMatriculas = [];
 listaCursos = [];
-const registrarUsuario = (identificacion, nombre, correo, telefono, rol, pass) => {
-  listaUsuarios = require('./usuarios.json');
-  let user = {
-    identificacion: identificacion,
-    nombre: nombre,
-    correo: correo,
-    telefono: telefono,
-    rol: rol,
-    pass: pass
-  };
-  let validacion = listaUsuarios.find(id => id.identificacion == user.identificacion);
-  if (!validacion) {
-    listaUsuarios.push(user);
-    guardarUsuario();
-    return 'usuario creado exitosamente'
+
+const verCursos = async (active) => {
+  if (active = 1) {
+    return await Curso.find({ estado: "Disponible" });
   } else {
-    return 'usuario ya existe'
+    return await Curso.find();
   }
 }
-const guardarUsuario = () => {
-  let datos = JSON.stringify(listaUsuarios);
-  fs.writeFile(__dirname + '/usuarios.json', datos, (err) => {
-    if (err) console.log(err);
-    console.log("usuario creado")
+
+const matricularAspirante = async (cedula, curso) => {
+
+  var listaMatriculas = await Inscripcion.find({ cedula: cedula, idCurso: curso });
+  let inscripcion = new Inscripcion({
+    cedula: cedula,
+    idCurso: curso
   });
-}
 
-const validarLogin = (identificacion, pass) => {
-  listaUsuarios = require('./usuarios.json');
-  let encontrado = false
-  let user = {}
-  for (let i = 0; i < listaUsuarios.length; i++) {
-    if (listaUsuarios[i].identificacion == identificacion && listaUsuarios[i].pass == pass) {
-      encontrado = true;
-      user = listaUsuarios[i];
-    }
-  }
-  if (encontrado == true) {
-    return user;
+  if (listaMatriculas.length > 0) {
+    return "El aspirante ya se encuentra matriculado en el curso"
   } else {
-    return false;
-  }
-}
+    await inscripcion.save();
+    return "Matricula exitosa"
 
-const matricularAspirante = (identificacion, curso) => {
-  listaUsuarios = require('./usuarios.json');
-  listaMatriculas = require('./matriculas.json');
-  let matricula = {
-    identificacion: identificacion,
-    curso: curso
-  }
-  let validacion = listaUsuarios.find(id => id.identificacion == identificacion);
-  if (!validacion) {
-    return "La cedula no esta registrado"
-  } else {
-    let valMatricula = listaMatriculas.find(est => (est.identificacion == identificacion && est.curso == curso));
-    console.log(valMatricula)
-    if (!valMatricula) {
-      listaMatriculas.push(matricula);
-      guardarMatricula();
-      return "Matricula exitosa"
-    } else {
-      return "El aspirante ya se encuentra matriculado en el curso"
-    }
   }
 }
 
@@ -77,24 +39,23 @@ const guardarMatricula = () => {
   });
 }
 
-const crearCurso = (id, nombre, descripcion, valor, modalidad, horas, estado) => {
-  listaCursos = require('./cursos.json');
-  let curso = {
-    id: id,
+const crearCurso = async (idCurso, nombre, descripcion, valor, modalidad, horas, estado) => {
+  var listaCursos = await Curso.find({ idCurso: idCurso });
+
+  let curso = new Curso({
+    idCurso: idCurso,
     nombre: nombre,
     descripcion: descripcion,
     valor: valor,
     modalidad: modalidad,
     horas: horas,
     estado: estado
-  };
-  let validacion = listaCursos.find(curso => curso.id == id);
-  if (!validacion) {
-    listaCursos.push(curso);
-    guardarCurso();
-    return 'Curso creado exitosamente'
-  } else {
+  });
+  if (listaCursos.length > 0) {
     return 'El id del curso ya existe'
+  } else {
+    await curso.save();
+    return 'Curso creado exitosamente'
   }
 }
 const guardarCurso = () => {
@@ -105,56 +66,39 @@ const guardarCurso = () => {
   });
 }
 
-const cargarInscritos = () => {
-  listaCursos = require('./cursos.json');
-  listaMatriculas = require('./matriculas.json');
-  listaUsuarios = require('./usuarios.json');
+const cargarInscritos = async () => {
+  var listaCursos = await Curso.find({ estado: "Disponible" });
+  var listaMatriculas = await Inscripcion.find();
 
   var datos = []
   for (let i = 0; i < listaCursos.length; i++) {
-    if (listaCursos[i].estado == 1) {
-      var curso = {
-        id: listaCursos[i].id,
-        nombre: listaCursos[i].nombre,
-        aspirantes: []
-      }
-      for (let j = 0; j < listaMatriculas.length; j++) {
-        if (listaMatriculas[j].curso == curso.id) {
-          curso.aspirantes.push(listaUsuarios.find(user => user.identificacion == listaMatriculas[j].identificacion));
-        }
-      }
-      datos.push(curso);
+
+    var curso = {
+      idCurso: listaCursos[i].idCurso,
+      nombre: listaCursos[i].nombre,
+      aspirantes: []
     }
+    for (let j = 0; j < listaMatriculas.length; j++) {
+      if (listaMatriculas[j].idCurso == curso.idCurso) {
+        curso.aspirantes.push(await Usuario.findOne({ cedula: listaMatriculas[j].cedula }));
+      }
+    }
+    datos.push(curso);
   }
   return datos;
 }
 
-const cambiarEstadoCurso = (id) => {
-  listaCursos = require('./cursos.json');
-  let curso = listaCursos.find(curso => curso.id == id);
-  curso.estado = 0;
-  for (let i = 0; i < listaCursos.length; i++) {
-    if (listaCursos[i].id == curso.id) {
-      listaCursos[i] = curso;
-    }
-  }
-  guardarCurso();
+const cambiarEstadoCurso = async (id) => {
+  await Curso.findOneAndUpdate({ idCurso: id }, { estado: "Cerrado" })
 }
 
-const eliminarAspirante = (identificacion, curso) => {
-  listaMatriculas = require('./matriculas.json');
-
-  for (let i = 0; i < listaMatriculas.length; i++) {
-    if (listaMatriculas[i].identificacion == identificacion && listaMatriculas[i].curso == curso) {
-      listaMatriculas.splice(i, 1)
-    }
-  }
-  guardarMatricula();
+const eliminarAspirante = async (cedula, curso) => {
+  await Inscripcion.deleteOne({ cedula: cedula, idCurso: curso });
 }
 
-const obtenerUsuario = (identificacion) => {
-  listaUsuarios = require('./usuarios.json');
-  let user = listaUsuarios.find(usuario => usuario.identificacion == identificacion);
+const obtenerUsuario = async (cedula) => {
+  let user = await Usuario.findOne({ cedula: cedula })
+
   if (!user) {
     return false;
   } else {
@@ -162,37 +106,19 @@ const obtenerUsuario = (identificacion) => {
   }
 }
 
-const actualizarUsuario = (identificacion, nombre, correo, telefono, rol) => {
-  listaUsuarios = require('./usuarios.json');
+const actualizarUsuario = async (cedula, nombre, correo, telefono, perfil) => {
+  await Usuario.findOneAndUpdate({ cedula: cedula }, { nombre: nombre, correo: correo, telefono: telefono, perfil: perfil });
 
-  var user = listaUsuarios.find(usuario => usuario.identificacion == identificacion);
-  user = {
-    identificacion: identificacion,
-    nombre: nombre,
-    correo: correo,
-    telefono: telefono,
-    rol: rol,
-    pass: user.pass
-  }
-  for (let i = 0; i < listaUsuarios.length; i++) {
-    if (listaUsuarios[i].identificacion == identificacion) {
-      listaUsuarios[i] = user
-    }
-  }
-  guardarUsuario();
 }
 
-const verMisCursos = (identificacion) => {
-  listaCursos = require('./cursos.json');
-  listaMatriculas = require('./matriculas.json');
+const verMisCursos = async (cedula) => {
+  var listaMatriculas = await Inscripcion.find({ cedula: cedula });
 
   var datos = []
   for (let i = 0; i < listaMatriculas.length; i++) {
-    if (listaMatriculas[i].identificacion == identificacion) {
-      datos.push(listaCursos.find(curso => curso.id == listaMatriculas[i].curso));
-    }
+    datos.push(await Curso.findOne({ idCurso: listaMatriculas[i].idCurso }));
   }
   return datos;
 }
 
-module.exports = { registrarUsuario, validarLogin, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos }
+module.exports = { verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos }

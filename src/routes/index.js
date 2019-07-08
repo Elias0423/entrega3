@@ -3,13 +3,14 @@ const app = express();
 const path = require('path');
 const hbs = require('hbs');
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const funciones = require('../files/funciones');
 const dirViews = path.join(__dirname, '../../templates/views/');
 const directoriopartials = path.join(__dirname, '../../templates/partials');
 
-const Curso = mongoose.model('curso')
-const Usuario = mongoose.model('usuario')
-const Inscripcion = mongoose.model('inscripcion')
+const Curso = require('../models/curso')
+const Usuario = require('../models/usuario')
+const Inscripcion = require('../models/inscripcion')
 
 require('../helpers/helpers')
 
@@ -25,68 +26,111 @@ app.get('/', (req, res) => {
 });
 
 app.post('/registrarusuario', (req, res) => {
-  var response = funciones.registrarUsuario(req.body.identificacion, req.body.nombre, req.body.correo, req.body.telefono, 1, req.body.pass)
-  return res.render('index', {
-    message: response
-  });
-});
+  let usuario = new Usuario({
+    cedula: req.body.cedula,
+    nombre: req.body.nombre,
+    password: bcrypt.hashSync(req.body.password, 10),
+    email: req.body.email,
+    telefono: req.body.telefono,
+    perfil: req.body.perfil
+  })
+
+  usuario.save((err, result) => {
+    if (err) {
+      res.render('index', {
+        message: err
+      })
+    }
+    res.render('index', {
+      message: "Usuario creado exitosamente"
+    })
+  })
+})
 
 app.post('/iniciarsesion', (req, res) => {
-  var user = funciones.validarLogin(req.body.identificacion, req.body.pass);
-  if (user != false) {
-    req.session.identificacion = user.identificacion;
-    req.session.nombre = user.nombre + " ";
-    if (user.rol == 1) {
+  Usuario.findOne({ cedula: req.body.cedula }, async (err, user) => {
+    if (err) {
+      res.render('index', {
+        message: err
+      })
+    }
+    if (!user) {
+      res.render('index', {
+        message: 'Cédula o contraseña incorrecta'
+      })
+    }
+    if (!bcrypt.compareSync(req.body.password, user.password)) {
+      res.render('index', {
+        message: 'Cédula o contraseña incorrecta'
+      })
+    }
+
+    req.session.nombre = user.nombre
+    req.session.cedula = user.cedula
+
+    if (user.perfil == 'Aspirante') {
+      var result = await funciones.verCursos(1);
+
       res.render('vercursosactivos', {
-        nombre: req.session.nombre
+        nombre: req.session.nombre,
+        listadoCursos: result
       });
     } else {
+      var result = await funciones.verCursos(0);
       res.render('vercursos', {
-        nombre: req.session.nombre
+        nombre: req.session.nombre,
+        listadoCursos: result
       });
     }
-  } else {
-    res.render('index', {
-      message: "El usuario no existe actualmente"
-    })
-  }
-});
+  })
+})
 
 //RUTAS ASPIRANTE --------------------------------------------------------------------------
 
-app.get('/vercursosactivos', (req, res) => {
+app.get('/vercursosactivos', async (req, res) => {
+  var result = await funciones.verCursos(1);
+
   res.render('vercursosactivos', {
-    nombre: req.session.nombre
+    nombre: req.session.nombre,
+    listadoCursos: result
   });
+
 });
 
-app.get('/matricular', (req, res) => {
+app.get('/matricular', async (req, res) => {
+  var result = await funciones.verCursos(1)
   res.render('matricular', {
-    nombre: req.session.nombre
+    nombre: req.session.nombre,
+    listadoCursos: result
   });
 });
 
-app.post('/matricular', (req, res) => {
-  var mensaje = funciones.matricularAspirante(req.session.identificacion, req.body.curso);
+app.post('/matricular', async (req, res) => {
+  var mensaje = await funciones.matricularAspirante(req.session.cedula, req.body.curso);
+  var result = await funciones.verCursos(1)
   return res.render('matricular', {
     message: mensaje,
-    nombre: req.session.nombre
-  });
-});
-
-
-app.get('/miscursos', (req, res) => {
-  res.render('miscursos', {
-    identificacion: req.session.identificacion,
-    nombre: req.session.nombre
-  });
-});
-
-app.post('/cancelarinscripcion', (req, res) => {
-  funciones.eliminarAspirante(req.session.identificacion, req.body.curso);
-  return res.render('miscursos', {
-    identificacion: req.session.identificacion,
     nombre: req.session.nombre,
+    listadoCursos: result
+  });
+});
+
+app.get('/miscursos', async (req, res) => {
+  var cursos = await funciones.verMisCursos(req.session.cedula);
+  res.render('miscursos', {
+    cedula: req.session.cedula,
+    nombre: req.session.nombre,
+    misCursos: cursos
+  });
+});
+
+app.post('/cancelarinscripcion', async (req, res) => {
+  await funciones.eliminarAspirante(req.session.cedula, req.body.curso);
+  var cursos = await funciones.verMisCursos(req.session.cedula);
+  return res.render('miscursos', {
+    cedula: req.session.cedula,
+    nombre: req.session.nombre,
+    misCursos: cursos,
     message: "Cancelacion exitosa"
   });
 });
@@ -99,47 +143,62 @@ app.get('/crearcursos', (req, res) => {
   });
 });
 
-app.post('/crearcursos', (req, res) => {
-  var mensaje = funciones.crearCurso(Number(req.body.id), req.body.nombre, req.body.descripcion, Number(req.body.valor), Number(req.body.modalidad), Number(req.body.horas), 1)
-
+app.post('/crearcursos', async (req, res) => {
+  var mensaje = await funciones.crearCurso(Number(req.body.id), req.body.nombre, req.body.descripcion, Number(req.body.valor), req.body.modalidad, Number(req.body.horas), "Disponible")
+  console.log(mensaje)
   return res.render('crearcursos', {
     message: mensaje,
     nombre: req.session.nombre
   });
 });
 
-app.get('/vercursos', (req, res) => {
+app.get('/vercursos', async (req, res) => {
+  var result = await funciones.verCursos(0);
   res.render('vercursos', {
-    nombre: req.session.nombre
+    nombre: req.session.nombre,
+    listadoCursos: result
   });
 });
 
-app.get('/inscritos', (req, res) => {
+app.get('/inscritos', async (req, res) => {
+  var inscritos = await funciones.cargarInscritos();
+  var result = await funciones.verCursos(0);
   res.render('inscritos', {
-    nombre: req.session.nombre
+    nombre: req.session.nombre,
+    inscritos: inscritos,
+    listadoCursos: result
   });
 });
 
-app.post('/cambiarestado', (req, res) => {
-  funciones.cambiarEstadoCurso(req.body.curso)
+app.post('/cambiarestado', async (req, res) => {
+  await funciones.cambiarEstadoCurso(req.body.curso)
+  var inscritos = await funciones.cargarInscritos();
+  var result = await funciones.verCursos(0);
   return res.render('inscritos', {
     nombre: req.session.nombre,
-    message: "Estado del curso cambiado a cerrado"
+    message: "Estado del curso cambiado a cerrado",
+    inscritos: inscritos,
+    listadoCursos: result
   });
 });
 
-app.get('/eliminaraspirantes', (req, res) => {
+app.get('/eliminaraspirantes', async (req, res) => {
+  var result = await funciones.verCursos(1);
   res.render('eliminaraspirantes', {
-    nombre: req.session.nombre
+    nombre: req.session.nombre,
+    listadoCursos: result
   });
 });
 
-app.post('/eliminaraspirantes', (req, res) => {
-  funciones.eliminarAspirante(req.body.identificacion, req.body.curso);
+app.post('/eliminaraspirantes', async (req, res) => {
+  
+  await funciones.eliminarAspirante(req.body.cedula, req.body.curso);
+  var inscritos = await funciones.cargarInscritos();
   return res.render('verinscritos', {
     nombre: req.session.nombre,
     message: "Aspirante eliminado exitosamente",
-    curso: req.body.curso
+    curso: req.body.curso,
+    inscritos: inscritos
   });
 });
 
@@ -150,33 +209,33 @@ app.get('/actualizar', (req, res) => {
   });
 });
 
-app.post('/actualizar', (req, res) => {
-  var user = funciones.obtenerUsuario(req.body.identificacion);
+app.post('/actualizar', async (req, res) => {
+  var user = await funciones.obtenerUsuario(req.body.cedula);
   if (user == false) {
     return res.render('actualizar', {
       message: "No se encontró el usuario"
     });
   } else {
     res.render('actualizarusuario', {
-      identificacion: user.identificacion,
+      cedula: user.cedula,
       nombre: user.nombre,
       correo: user.correo,
       telefono: user.telefono,
-      rol: user.rol
+      perfil: user.perfil
     });
   }
 });
 
 
-app.post('/actualizarusuario', (req, res) => {
-  funciones.actualizarUsuario(Number(req.body.identificacion), req.body.nombre, req.body.correo, req.body.telefono, Number(req.body.rol));
-  var user = funciones.obtenerUsuario(req.body.identificacion);
+app.post('/actualizarusuario', async (req, res) => {
+  await funciones.actualizarUsuario(Number(req.body.cedula), req.body.nombre, req.body.correo, req.body.telefono, req.body.perfil);
+  var user =await  funciones.obtenerUsuario(req.body.cedula);
   return res.render('actualizarusuario', {
-    identificacion: user.identificacion,
+    cedula: user.cedula,
     nombre: user.nombre,
     correo: user.correo,
     telefono: user.telefono,
-    rol: user.rol,
+    perfil: user.perfil,
     message: "Informacion actualizada correctamente"
   });
 });

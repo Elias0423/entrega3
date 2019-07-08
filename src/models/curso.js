@@ -16,11 +16,11 @@ const curso = new Schema({
         type: String
     },
 
-    costo: {
-        type: Float32Array
+    valor: {
+        type: Number
     },
 
-    intensidad: {
+    horas: {
         type: String
     },
 
@@ -35,9 +35,14 @@ const curso = new Schema({
         type: String,
         default: 'Disponible',
         enum: {
-            values: ['Disponible', 'Finalizado', 'Cerrado']
+            values: ['Disponible', 'Cerrado']
         }
     }
+},   
+{
+  collection: 'curso',
+  toJSON: { virtuals: true },
+  versionKey: false
 })
 
 module.exports = mongoose.model("curso", curso)

@@ -4,13 +4,13 @@
   <div class="form-group">
     <div class="row">
       <div class="col">
-        <label>identificacion del aspirante</label>
-        <input type="number" class="form-control" name="identificacion" placeholder="Documento" required>
+        <label>cedula del aspirante</label>
+        <input type="number" class="form-control" name="cedula" placeholder="Documento" required>
       </div>
       <div class="col">
         <label>Curso</label>
         <select class="form-control" name="curso" required>
-          {{{listarCursos}}}
+          {{{listarCursos listadoCursos}}}
         </select>
       </div>
     </div>

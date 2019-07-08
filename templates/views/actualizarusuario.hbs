@@ -6,9 +6,9 @@
       <div class="col">
         <label>Documento de identidad</label>
         <br>
-        <label>{{identificacion}}</label>
-        <input type="number" class="form-control" name="identificacion" placeholder="Documento"
-          value="{{identificacion}}" hidden>
+        <label>{{cedula}}</label>
+        <input type="number" class="form-control" name="cedula" placeholder="Documento"
+          value="{{cedula}}" hidden>
       </div>
       <div class="col">
         <label>Nombre Completo</label>
@@ -27,9 +27,9 @@
           required>
       </div>
       <div class="col">
-        <label>Rol</label>
-        <select class="form-control" name="rol" required>
-          {{{listarRol rol}}}
+        <label>perfil</label>
+        <select class="form-control" name="perfil" required>
+          {{{listarRol perfil}}}
         </select>
       </div>
     </div>
