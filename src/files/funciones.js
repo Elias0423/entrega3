@@ -86,8 +86,16 @@ const cargarInscritos = async () => {
   return datos;
 }
 
-const cambiarEstadoCurso = async (id) => {
-  await Curso.findOneAndUpdate({ idCurso: id }, { estado: "Cerrado" })
+const cambiarEstadoCurso = async (cedula, idCurso) => {
+  await Curso.findOneAndUpdate({ idCurso: idCurso }, { estado: "Cerrado" })
+  var asignatura = new Asignatura({
+    cedula: cedula,
+    idCurso: idCurso
+  })
+  var res = await Asignatura.findOne({ cedula: cedula, idCurso: idCurso })
+  if (!res) {
+    await asignatura.save()
+  }
 }
 
 const eliminarAspirante = async (cedula, curso) => {
@@ -106,7 +114,6 @@ const obtenerUsuario = async (cedula) => {
 
 const actualizarUsuario = async (cedula, nombre, correo, telefono, perfil) => {
   await Usuario.findOneAndUpdate({ cedula: cedula }, { nombre: nombre, correo: correo, telefono: telefono, perfil: perfil });
-
 }
 
 const verMisCursos = async (cedula) => {
@@ -149,4 +156,9 @@ const cargarEstudiantes = async (cedula) => {
   return datos;
 }
 
-module.exports = { verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos, cursosProfesor, cargarEstudiantes }
+const obtenerProfesores = async () => {
+  let user = await Usuario.find({ perfil: "Profesor" })
+  return user;
+}
+
+module.exports = { verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos, cursosProfesor, cargarEstudiantes, obtenerProfesores }

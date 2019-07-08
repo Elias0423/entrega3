@@ -18,7 +18,7 @@ const usuario = new Schema ({
         required: true
     },
 
-    email : {
+    correo : {
         type: String,
         required: true
     },

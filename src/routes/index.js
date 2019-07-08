@@ -30,7 +30,7 @@ app.post('/registrarusuario', (req, res) => {
     cedula: req.body.cedula,
     nombre: req.body.nombre,
     password: bcrypt.hashSync(req.body.password, 10),
-    email: req.body.email,
+    correo: req.body.correo,
     telefono: req.body.telefono,
     perfil: req.body.perfil
   })
@@ -175,23 +175,28 @@ app.get('/vercursos', async (req, res) => {
 
 app.get('/inscritos', async (req, res) => {
   var inscritos = await funciones.cargarInscritos();
+  var profesores = await funciones.obtenerProfesores();
   var result = await funciones.verCursos(0);
   res.render('inscritos', {
     nombre: req.session.nombre,
     inscritos: inscritos,
-    listadoCursos: result
+    listadoCursos: result,
+    listadoProfesores: profesores
   });
 });
 
 app.post('/cambiarestado', async (req, res) => {
-  await funciones.cambiarEstadoCurso(req.body.curso)
+  await funciones.cambiarEstadoCurso(req.body.profesor, req.body.curso)
   var inscritos = await funciones.cargarInscritos();
+  var profesores = await funciones.obtenerProfesores();
   var result = await funciones.verCursos(0);
   return res.render('inscritos', {
     nombre: req.session.nombre,
     message: "Estado del curso cambiado a cerrado",
     inscritos: inscritos,
-    listadoCursos: result
+    listadoCursos: result,
+    listadoProfesores: profesores
+
   });
 });
 

@@ -1,11 +1,10 @@
 const hbs = require('hbs');
 
-hbs.registerHelper('verCursos', (listadoCursos) => {
+hbs.registerHelper('verCursos', (listadoCursos, perfil) => {
   let texto = '<div class="accordion" id="accordionExample"> \
     <div class="row"> ';
   let i = 1;
   listadoCursos.forEach(curso => {
-
     texto = ` ${texto} 
       <div class="col-sm-4">
             <div class="card sm-6 text-center">
@@ -19,27 +18,26 @@ hbs.registerHelper('verCursos', (listadoCursos) => {
                 <div class="card-body">
                   Descripcion: ${curso.descripcion} <br>
                   Modalidad: ${curso.modalidad} <br>
-                  Intensidad Horaria: ${curso.horas} <br>
-                  Estado: ${curso.estado} <br>
+                  Intensidad Horaria: ${curso.horas} <br> `
+      if(perfil == "Coordinador"){
+        texto = ` ${texto} Estado: ${curso.estado} <br> `
+      }
+      texto = ` ${texto} 
                 </div>
               </div> 
             </div> 
             </div> `
     i = i + 1;
-
   });
   texto = texto + '  </div>  </div>'
-
   return texto;
 })
 
 hbs.registerHelper('listarCursos', (listadoCursos) => {
   let texto = '';
-
   listadoCursos.forEach(curso => {
     texto = ` ${texto} <option value="${curso.idCurso}">${curso.nombre}</option> `
   });
-
   return texto;
 })
 
@@ -48,7 +46,7 @@ hbs.registerHelper('verInscritos', (info) => {
   let texto = ""
 
   info.forEach(datos => {
-    texto = texto + "Curso: " + datos.nombre + "<br>\
+    texto = texto + "Curso: <strong> " + datos.nombre + " </strong> <br>\
       <table class='table table-striped'> \
       <thead class='thead-dark'>\
         <th>Identificación aspirante</th>\
@@ -98,7 +96,6 @@ hbs.registerHelper('verInscritosCurso', (info, idCurso) => {
       }
       texto = texto + '</tbody> </table>'
     }
-
   });
   return texto;
 })
@@ -134,5 +131,15 @@ hbs.registerHelper('verMisCursos', (info) => {
       '</tr>';
   }
   texto = texto + '</tbody> </table>'
+  return texto;
+})
+
+hbs.registerHelper('listarProfesores', (listadoProfesores) => {
+  let texto = '';
+
+  listadoProfesores.forEach(profe => {
+    texto = ` ${texto} <option value="${profe.cedula}">${profe.nombre}</option> `
+  });
+
   return texto;
 })
