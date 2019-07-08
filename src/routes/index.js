@@ -75,12 +75,25 @@ app.post('/iniciarsesion', (req, res) => {
         nombre: req.session.nombre,
         listadoCursos: result
       });
-    } else {
+    } else if (user.perfil == 'Profesor') {
+      var cursos = await funciones.cursosProfesor(req.session.cedula);
+      var estudiantes = await funciones.cargarEstudiantes(req.session.cedula);
+      res.render('cursosprofesor', {
+        cedula: req.session.cedula,
+        nombre: req.session.nombre,
+        misCursos: cursos,
+        inscritos: estudiantes
+      });
+    } else if (user.perfil == 'Coordinador') {
       var result = await funciones.verCursos(0);
       res.render('vercursos', {
         nombre: req.session.nombre,
         listadoCursos: result
       });
+    } else {
+      return res.render('index', {
+        message: 'No tiene un perfil valido'
+      })
     }
   })
 })
@@ -191,7 +204,7 @@ app.get('/eliminaraspirantes', async (req, res) => {
 });
 
 app.post('/eliminaraspirantes', async (req, res) => {
-  
+
   await funciones.eliminarAspirante(req.body.cedula, req.body.curso);
   var inscritos = await funciones.cargarInscritos();
   return res.render('verinscritos', {
@@ -229,7 +242,7 @@ app.post('/actualizar', async (req, res) => {
 
 app.post('/actualizarusuario', async (req, res) => {
   await funciones.actualizarUsuario(Number(req.body.cedula), req.body.nombre, req.body.correo, req.body.telefono, req.body.perfil);
-  var user =await  funciones.obtenerUsuario(req.body.cedula);
+  var user = await funciones.obtenerUsuario(req.body.cedula);
   return res.render('actualizarusuario', {
     cedula: user.cedula,
     nombre: user.nombre,
@@ -241,6 +254,18 @@ app.post('/actualizarusuario', async (req, res) => {
 });
 
 //RUTAS PROFESOR -------------------------------------------------------------------------------------------
+
+app.get('/cursosprofesor', async (req, res) => {
+  var cursos = await funciones.cursosProfesor(req.session.cedula);
+  var estudiantes = await funciones.cargarEstudiantes(req.session.cedula);
+  res.render('cursosprofesor', {
+    cedula: req.session.cedula,
+    nombre: req.session.nombre,
+    misCursos: cursos,
+    inscritos: estudiantes
+  });
+});
+
 
 app.get('/salir', (req, res) => {
   req.session.destroy((err) => {

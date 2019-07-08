@@ -2,9 +2,7 @@ const fs = require('fs');
 const Curso = require('../models/curso')
 const Usuario = require('../models/usuario')
 const Inscripcion = require('../models/inscripcion')
-listaUsuarios = [];
-listaMatriculas = [];
-listaCursos = [];
+const Asignatura = require('../models/asignatura')
 
 const verCursos = async (active) => {
   if (active = 1) {
@@ -121,4 +119,34 @@ const verMisCursos = async (cedula) => {
   return datos;
 }
 
-module.exports = { verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos }
+const cursosProfesor = async (cedula) => {
+  var listaAsignaturas = await Asignatura.find({ cedula: cedula });
+
+  var datos = []
+  for (let i = 0; i < listaAsignaturas.length; i++) {
+    datos.push(await Curso.findOne({ idCurso: listaAsignaturas[i].idCurso }));
+  }
+  return datos;
+}
+
+const cargarEstudiantes = async (cedula) => {
+  var listaAsignaturas = await Asignatura.find({ cedula: cedula });
+
+  var datos = []
+  for (let i = 0; i < listaAsignaturas.length; i++) {
+    var datosCurso = await Curso.findOne({ idCurso: listaAsignaturas[i].idCurso });
+    var curso = {
+      idCurso: datosCurso.idCurso,
+      nombre: datosCurso.nombre,
+      aspirantes: []
+    }
+    var listaMatriculas = await Inscripcion.find({ idCurso: curso.idCurso });
+    for (let j = 0; j < listaMatriculas.length; j++) {
+      curso.aspirantes.push(await Usuario.findOne({ cedula: listaMatriculas[j].cedula }));
+    }
+    datos.push(curso);
+  }
+  return datos;
+}
+
+module.exports = { verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos, cursosProfesor, cargarEstudiantes }

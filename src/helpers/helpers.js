@@ -104,7 +104,6 @@ hbs.registerHelper('verInscritosCurso', (info, idCurso) => {
 })
 
 hbs.registerHelper('listarRol', (rol) => {
-  console.log(rol);
   
   let texto = "";
   if (rol == "Aspirante") {
