@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const curso = new Schema({
     idCurso: {
         type: Number,
-        required: true
+        required: true,
+        index: true
     },
     
     nombre: {

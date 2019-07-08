@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 //Routes
 app.use(require('./routes/index'));
 
-mongoose.connect('mongodb://localhost:27017/appcursos', {useNewUrlParser: true}, (err, result) => {
+mongoose.connect(process.env.URLBD, {useNewUrlParser: true}, (err, result) => {
 	if(err) throw err
 	console.log("Conectado a la base de datos")
 })
