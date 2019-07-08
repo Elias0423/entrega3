@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const usuario = new Schema ({
     cedula : {
         type: Number,
-        required: true
+        required: true,
+        index: true
     },
 
     nombre : {
@@ -17,7 +18,7 @@ const usuario = new Schema ({
         required: true
     },
 
-    correo : {
+    email : {
         type: String,
         required: true
     },
