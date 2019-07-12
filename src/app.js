@@ -50,6 +50,6 @@ mongoose.connect(process.env.URLBD, {useNewUrlParser: true}, (err, result) => {
 	console.log("Conectado a la base de datos")
 })
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 3001, () => {
   console.log("Server en puerto " + process.env.PORT)
 })

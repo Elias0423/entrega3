@@ -2,18 +2,13 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const hbs = require('hbs');
-const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
 const funciones = require('../files/funciones');
 const dirViews = path.join(__dirname, '../../templates/views/');
 const directoriopartials = path.join(__dirname, '../../templates/partials');
 
-const Curso = require('../models/curso')
 const Usuario = require('../models/usuario')
-const Inscripcion = require('../models/inscripcion')
 
 require('../helpers/helpers')
-
 
 app.set('views', dirViews)
 app.set('view engine', 'hbs');
@@ -25,25 +20,10 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.post('/registrarusuario', (req, res) => {
-  let usuario = new Usuario({
-    cedula: req.body.cedula,
-    nombre: req.body.nombre,
-    password: bcrypt.hashSync(req.body.password, 10),
-    correo: req.body.correo,
-    telefono: req.body.telefono,
-    perfil: req.body.perfil
-  })
-
-  usuario.save((err, result) => {
-    if (err) {
-      res.render('index', {
-        message: err
-      })
-    }
-    res.render('index', {
-      message: "Usuario creado exitosamente"
-    })
+app.post('/registrarusuario', async (req, res) => {
+  var response = await funciones.registrarUsuario(req.body);
+  res.render('index', {
+    message: response
   })
 })
 

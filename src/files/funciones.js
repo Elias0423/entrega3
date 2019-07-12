@@ -3,9 +3,33 @@ const Curso = require('../models/curso')
 const Usuario = require('../models/usuario')
 const Inscripcion = require('../models/inscripcion')
 const Asignatura = require('../models/asignatura')
+const bcrypt = require('bcrypt')
+
+const registrarUsuario = async (data) => {
+  try {
+    var user = await Usuario.findOne({ cedula: data.cedula });
+    if (!user) {
+      let usuario = new Usuario({
+        cedula: data.cedula,
+        nombre: data.nombre,
+        password: bcrypt.hashSync(data.password, 10),
+        correo: data.correo,
+        telefono: data.telefono,
+        perfil: data.perfil
+      })
+
+      await usuario.save();
+      return "Usuario creado exitosamente";
+    } else {
+      return "Usuario ya existe";
+    }
+  } catch (error) {
+    return error;
+  }
+}
 
 const verCursos = async (active) => {
-  if (active = 1) {
+  if (active == 1) {
     return await Curso.find({ estado: "Disponible" });
   } else {
     return await Curso.find();
@@ -29,14 +53,6 @@ const matricularAspirante = async (cedula, curso) => {
   }
 }
 
-const guardarMatricula = () => {
-  let datos = JSON.stringify(listaMatriculas);
-  fs.writeFile(__dirname + '/matriculas.json', datos, (err) => {
-    if (err) console.log(err);
-    console.log("matricula creada")
-  });
-}
-
 const crearCurso = async (idCurso, nombre, descripcion, valor, modalidad, horas, estado) => {
   var listaCursos = await Curso.find({ idCurso: idCurso });
 
@@ -55,13 +71,6 @@ const crearCurso = async (idCurso, nombre, descripcion, valor, modalidad, horas,
     await curso.save();
     return 'Curso creado exitosamente'
   }
-}
-const guardarCurso = () => {
-  let datos = JSON.stringify(listaCursos);
-  fs.writeFile(__dirname + '/cursos.json', datos, (err) => {
-    if (err) console.log(err);
-    console.log("curso guardado")
-  });
 }
 
 const cargarInscritos = async () => {
@@ -161,4 +170,4 @@ const obtenerProfesores = async () => {
   return user;
 }
 
-module.exports = { verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos, cursosProfesor, cargarEstudiantes, obtenerProfesores }
+module.exports = { registrarUsuario, verCursos, matricularAspirante, crearCurso, cargarInscritos, cambiarEstadoCurso, eliminarAspirante, obtenerUsuario, actualizarUsuario, verMisCursos, cursosProfesor, cargarEstudiantes, obtenerProfesores }
